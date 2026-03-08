@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <meta name="description" content="StudyBuddy - Your AI Homework Helper" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="StudyBuddy" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>StudyBuddy 🤖 – AI Homework Helper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0d0d1a; --card: rgba(255,255,255,0.055); --border: rgba(255,255,255,0.09);
+      --text: rgba(255,255,255,0.92); --dim: rgba(255,255,255,0.45);
+      --accent: #FFE66D; --math: #FF6B6B; --science: #4ECDC4;
+      --english: #FFE66D; --history: #A8E6CF; --general: #C3A6FF;
+    }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; -webkit-tap-highlight-color: transparent; overflow: hidden; }
+    #app { display: flex; flex-direction: column; height: 100dvh; max-width: 780px; margin: 0 auto; }
+
+    /* HEADER */
+    header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: rgba(13,13,26,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .logo { display: flex; align-items: center; gap: 11px; }
+    .logo-icon { width: 44px; height: 44px; background: linear-gradient(135deg,#FFE66D,#FF6B6B); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 20px rgba(255,230,109,0.4); }
+    .logo-name { font-family: 'Fredoka One', cursive; font-size: 22px; color: var(--accent); }
+    .logo-sub { font-size: 11px; color: var(--dim); font-weight: 600; margin-top: 1px; }
+    .dot-live { display: inline-block; width: 7px; height: 7px; background: #4ECDC4; border-radius: 50%; margin-right: 4px; box-shadow: 0 0 6px #4ECDC4; animation: blink 2s infinite; }
+    #install-btn { display: none; background: rgba(255,230,109,0.1); border: 1px solid rgba(255,230,109,0.3); color: var(--accent); border-radius: 10px; padding: 7px 13px; font-size: 13px; font-family: 'Nunito',sans-serif; font-weight: 700; cursor: pointer; }
+    #install-btn.show { display: block; }
+
+    /* SUBJECTS */
+    .subjects { display: flex; gap: 7px; padding: 10px 16px; background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
+    .subjects::-webkit-scrollbar { display: none; }
+    .pill { padding: 6px 13px; border-radius: 20px; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: var(--dim); transition: all 0.2s; }
+    .pill.active[data-s="math"]    { background: rgba(255,107,107,0.2); border-color: rgba(255,107,107,0.5); color: var(--math); }
+    .pill.active[data-s="science"] { background: rgba(78,205,196,0.2);  border-color: rgba(78,205,196,0.5);  color: var(--science); }
+    .pill.active[data-s="english"] { background: rgba(255,230,109,0.2); border-color: rgba(255,230,109,0.5); color: var(--english); }
+    .pill.active[data-s="history"] { background: rgba(168,230,207,0.2); border-color: rgba(168,230,207,0.5); color: var(--history); }
+    .pill.active[data-s="general"] { background: rgba(195,166,255,0.2); border-color: rgba(195,166,255,0.5); color: var(--general); }
+
+    /* MESSAGES */
+    #msgs { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; scroll-behavior: smooth; }
+    #msgs::-webkit-scrollbar { width: 4px; }
+    #msgs::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+    .row { display: flex; gap: 9px; align-items: flex-end; animation: up 0.28s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .row.user { flex-direction: row-reverse; }
+    .av { width: 33px; height: 33px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .bub { max-width: min(78%, 520px); border-radius: 5px 17px 17px 17px; padding: 11px 14px; font-size: 15px; line-height: 1.65; }
+    .row.user .bub { border-radius: 17px 5px 17px 17px; color: #0d0d1a; font-weight: 600; }
+    .row.bot .bub { background: var(--card); border: 1px solid var(--border); }
+    .bub p { margin: 2px 0; }
+    .bub strong { font-weight: 800; }
+    .ts { font-size: 10px; color: var(--dim); margin-top: 4px; display: block; }
+    .row.user .ts { text-align: right; }
+    .typing { display: flex; gap: 9px; align-items: flex-end; animation: up 0.2s both; }
+    .typing-bub { background: var(--card); border: 1px solid var(--border); border-radius: 5px 17px 17px 17px; padding: 13px 16px; display: flex; gap: 5px; }
+    .d { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: bounce 1s infinite; }
+    .d:nth-child(2){animation-delay:.18s} .d:nth-child(3){animation-delay:.36s}
+
+    /* QUICK + PRACTICE */
+    #quick { padding: 8px 14px 0; flex-shrink: 0; }
+    .ql { font-size: 10.5px; color: var(--dim); font-weight: 700; letter-spacing:.05em; text-transform:uppercase; margin-bottom:6px; }
+    #qps { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+    #qps::-webkit-scrollbar { display: none; }
+    .qp { white-space: nowrap; padding: 6px 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; color: var(--dim); font-size: 13px; font-family: 'Nunito',sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .qp:hover { background: rgba(255,255,255,0.12); color: var(--text); }
+    #pbar { padding: 6px 14px; display: none; justify-content: center; flex-shrink: 0; }
+    #pbar.show { display: flex; }
+    #pbtn { background: rgba(78,205,196,0.1); border: 1px solid rgba(78,205,196,0.35); color: #4ECDC4; border-radius: 18px; padding: 7px 18px; font-size: 13px; font-family: 'Nunito',sans-serif; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    #pbtn:hover { background: rgba(78,205,196,0.2); }
+
+    /* INPUT */
+    #inp-area { padding: 10px 14px; padding-bottom: max(10px, env(safe-area-inset-bottom)); background: rgba(0,0,0,0.3); backdrop-filter: blur(20px); border-top: 1px solid var(--border); flex-shrink: 0; }
+    .inp-row { display: flex; gap: 9px; align-items: flex-end; background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 16px; padding: 7px 9px 7px 14px; transition: border-color 0.2s; }
+    .inp-row:focus-within { border-color: rgba(255,230,109,0.4); }
+    #txt { flex:1; background:transparent; border:none; outline:none; color:var(--text); font-family:'Nunito',sans-serif; font-size:15px; line-height:1.5; resize:none; max-height:100px; padding:4px 0; }
+    #txt::placeholder { color: var(--dim); }
+    #sbtn { width:38px; height:38px; border-radius:11px; border:none; font-size:17px; cursor:pointer; transition:all 0.2s; background:rgba(255,255,255,0.07); flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+    #sbtn.on { background:var(--accent); box-shadow:0 4px 14px rgba(255,230,109,0.35); }
+    #sbtn.on:hover { transform: scale(1.1); }
+
+    /* BG */
+    .orb { position:fixed; border-radius:50%; filter:blur(70px); pointer-events:none; z-index:0; }
+    .orb1 { width:300px;height:300px;top:-60px;right:-50px;background:rgba(195,166,255,0.07); }
+    .orb2 { width:240px;height:240px;bottom:40px;left:-70px;background:rgba(78,205,196,0.06); }
+
+    @keyframes up { from{opacity:0;transform:translateY(10px) scale(0.97)} to{opacity:1;transform:none} }
+    @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    @media(min-width:600px){ header{padding:16px 26px} #msgs{padding:20px 22px} #inp-area{padding:14px 22px;padding-bottom:max(14px,env(safe-area-inset-bottom))} #quick{padding:8px 22px 0} }
+    @media(min-width:900px){ body{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0d0d1a 0%,#16213e 60%,#0f3460 100%)} #app{height:88vh;max-height:840px;border-radius:26px;border:1px solid rgba(255,255,255,0.08);overflow:hidden;box-shadow:0 28px 70px rgba(0,0,0,0.55)} }
+  </style>
+</head>
+<body>
+<div class="orb orb1"></div><div class="orb orb2"></div>
+<div id="app">
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🤖</div>
+      <div>
+        <div class="logo-name">StudyBuddy</div>
+        <div class="logo-sub"><span class="dot-live"></span>AI Homework Helper · Always Online</div>
+      </div>
+    </div>
+    <button id="install-btn" onclick="installApp()">⬇️ Install</button>
+  </header>
+
+  <div class="subjects">
+    <div class="pill active" data-s="general" onclick="setSubj('general')">🤖 General</div>
+    <div class="pill" data-s="math"    onclick="setSubj('math')">📐 Math</div>
+    <div class="pill" data-s="science" onclick="setSubj('science')">🔬 Science</div>
+    <div class="pill" data-s="english" onclick="setSubj('english')">📚 English</div>
+    <div class="pill" data-s="history" onclick="setSubj('history')">🏛️ History</div>
+  </div>
+
+  <div id="msgs"></div>
+
+  <div id="pbar"><button id="pbtn" onclick="practice()">📝 Give me practice questions</button></div>
+
+  <div id="quick">
+    <div class="ql">✨ Try asking</div>
+    <div id="qps">
+      <button class="qp" onclick="go('What is photosynthesis?')">What is photosynthesis?</button>
+      <button class="qp" onclick="go('Explain the Pythagorean theorem')">Pythagorean theorem</button>
+      <button class="qp" onclick="go('How does gravity work?')">How does gravity work?</button>
+      <button class="qp" onclick="go('What caused World War II?')">What caused WW2?</button>
+      <button class="qp" onclick="go('Explain fractions simply')">Fractions explained</button>
+      <button class="qp" onclick="go('What is a simile vs metaphor?')">Simile vs Metaphor</button>
+    </div>
+  </div>
+
+  <div id="inp-area">
+    <div class="inp-row">
+      <textarea id="txt" rows="1" placeholder="Ask me anything… e.g. What is gravity?" oninput="onTyping(this)" onkeydown="onKey(event)"></textarea>
+      <button id="sbtn" onclick="go()">🚀</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const S = {
+  math:    {e:'📐',c:'#FF6B6B',b:'rgba(255,107,107,0.18)'},
+  science: {e:'🔬',c:'#4ECDC4',b:'rgba(78,205,196,0.18)'},
+  english: {e:'📚',c:'#FFE66D',b:'rgba(255,230,109,0.18)'},
+  history: {e:'🏛️',c:'#A8E6CF',b:'rgba(168,230,207,0.18)'},
+  general: {e:'🤖',c:'#C3A6FF',b:'rgba(195,166,255,0.18)'},
+};
+
+let hist=[], busy=false, subj='general', prompt=null;
+
+// PWA install
+window.addEventListener('beforeinstallprompt', e=>{
+  e.preventDefault(); prompt=e;
+  document.getElementById('install-btn').classList.add('show');
+});
+function installApp(){
+  if(!prompt) return;
+  prompt.prompt();
+  prompt.userChoice.then(()=>{ prompt=null; document.getElementById('install-btn').classList.remove('show'); });
+}
+
+// Service worker for offline
+if('serviceWorker' in navigator){
+  const sw=`const C='sb-v1';self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.add(self.location.href))));self.addEventListener('fetch',e=>{if(e.request.url.includes('netlify/functions')||e.request.url.includes('anthropic'))return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));});`;
+  navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{});
+}
+
+function detectSubj(t){
+  const l=t.toLowerCase();
+  if(/\b(math|algebra|calculus|geometry|equation|fraction|triangle|percentage|multiply|divide|probability)\b/.test(l)) return 'math';
+  if(/\b(science|physics|chemistry|biology|photosynthesis|atom|cell|energy|force|gravity|molecule|DNA)\b/.test(l)) return 'science';
+  if(/\b(english|grammar|essay|poem|verb|noun|adjective|metaphor|simile|vocabulary|punctuation)\b/.test(l)) return 'english';
+  if(/\b(history|war|president|century|ancient|civilization|revolution|empire|battle|colonial)\b/.test(l)) return 'history';
+  return 'general';
+}
+
+const msgsEl=document.getElementById('msgs');
+
+function addMsg(role, text, s){
+  const info=S[s]||S.general, isBot=role==='assistant';
+  const row=document.createElement('div'); row.className=`row ${isBot?'bot':'user'}`;
+  const time=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  if(isBot){
+    const av=document.createElement('div'); av.className='av';
+    av.style.cssText=`background:${info.b};box-shadow:0 3px 12px ${info.c}33`;
+    av.textContent=info.e; row.appendChild(av);
+  }
+  const wrap=document.createElement('div');
+  const bub=document.createElement('div'); bub.className='bub';
+  if(!isBot) bub.style.cssText=`background:linear-gradient(135deg,${info.c}dd,${info.c}99)`;
+  bub.innerHTML=text.split('\n').map(l=>`<p>${l.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>')||'<br>'}</p>`).join('');
+  const ts=document.createElement('span'); ts.className='ts'; ts.textContent=time;
+  wrap.appendChild(bub); wrap.appendChild(ts); row.appendChild(wrap);
+  msgsEl.appendChild(row); msgsEl.scrollTop=msgsEl.scrollHeight;
+}
+
+function showTyping(){
+  const info=S[subj]; const row=document.createElement('div');
+  row.className='typing'; row.id='typing';
+  row.innerHTML=`<div class="av" style="background:${info.b};box-shadow:0 3px 12px ${info.c}33">${info.e}</div><div class="typing-bub"><div class="d"></div><div class="d"></div><div class="d"></div></div>`;
+  msgsEl.appendChild(row); msgsEl.scrollTop=msgsEl.scrollHeight;
+}
+function hideTyping(){ const e=document.getElementById('typing'); if(e) e.remove(); }
+
+async function go(text){
+  text=(typeof text==='string'?text:document.getElementById('txt').value).trim();
+  if(!text||busy) return;
+  busy=true;
+  document.getElementById('txt').value='';
+  document.getElementById('sbtn').className='';
+  document.getElementById('quick').style.display='none';
+  document.getElementById('pbar').classList.remove('show');
+  resize(document.getElementById('txt'));
+
+  subj=detectSubj(text);
+  setSubj(subj);
+  hist.push({role:'user',content:text});
+  addMsg('user',text,subj);
+  showTyping();
+
+  try{
+    const res=await fetch('/.netlify/functions/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({messages:hist}),
+    });
+    if(!res.ok) throw new Error(`Server error ${res.status} — check Netlify Functions tab`);
+    const data=await res.json();
+    const reply=(data.content||[]).map(b=>b.text||'').join('')||"Sorry, couldn't get a response. Try again!";
+    hist.push({role:'assistant',content:reply});
+    hideTyping();
+    addMsg('assistant',reply,subj);
+    document.getElementById('pbar').classList.add('show');
+  } catch(err){
+    hideTyping();
+    addMsg('assistant',`⚠️ ${err.message}`,subj);
+  } finally {
+    busy=false;
+    document.getElementById('txt').focus();
+  }
+}
+
+function practice(){ go('Give me 3 practice questions on this topic with answers at the end.'); }
+function setSubj(s){ subj=s; document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.s===s)); }
+function onTyping(el){ resize(el); document.getElementById('sbtn').className=el.value.trim()?'on':''; }
+function resize(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
+function onKey(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();go();} }
+
+// Boot
+window.addEventListener('DOMContentLoaded',()=>{
+  const w="Hey there! 👋 I'm **StudyBuddy**, your AI homework helper!\n\nAsk me anything — I'll explain it simply, help you understand tricky topics, or give you practice questions.\n\nWhat are you studying today? 📖";
+  hist.push({role:'assistant',content:w});
+  addMsg('assistant',w,'general');
+});
+</script>
+</body>
+</html>
