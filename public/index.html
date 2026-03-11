@@ -2,259 +2,209 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="theme-color" content="#0d0d1a"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-title" content="StudyBuddy"/>
-  <meta name="mobile-web-app-capable" content="yes"/>
-  <title>StudyBuddy 🤖 – AI Homework Helper</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <title>StudyBuddy – Sign In</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
-      --bg:#0d0d1a;--card:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.09);
-      --text:rgba(255,255,255,0.93);--dim:rgba(255,255,255,0.4);
-      --accent:#FFE66D;--math:#FF6B6B;--science:#4ECDC4;
-      --english:#FFE66D;--history:#A8E6CF;--general:#C3A6FF;
+      --bg:#0d0d1a;--card:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.1);
+      --text:rgba(255,255,255,0.93);--dim:rgba(255,255,255,0.45);
+      --accent:#FFE66D;--red:#FF6B6B;--green:#4ECDC4;
     }
-    html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;-webkit-tap-highlight-color:transparent;overflow:hidden}
-    #app{display:flex;flex-direction:column;height:100dvh;max-width:800px;margin:0 auto}
-    header{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;
-      background:rgba(10,10,22,0.94);backdrop-filter:blur(22px);border-bottom:1px solid var(--border);flex-shrink:0;z-index:10}
-    .logo{display:flex;align-items:center;gap:12px}
-    .logo-icon{width:46px;height:46px;background:linear-gradient(135deg,#FFE66D,#FF6B6B);border-radius:15px;
-      display:flex;align-items:center;justify-content:center;font-size:23px;
-      box-shadow:0 4px 22px rgba(255,107,107,0.35);flex-shrink:0}
-    .logo-name{font-family:'Fredoka One',cursive;font-size:23px;color:var(--accent);line-height:1}
-    .logo-sub{font-size:11px;color:var(--dim);font-weight:600;margin-top:2px}
-    .live{display:inline-block;width:7px;height:7px;background:#4ECDC4;border-radius:50%;
-      margin-right:5px;box-shadow:0 0 7px #4ECDC4;animation:blink 2s infinite}
-    .subject-icons{display:flex;gap:6px}
-    .si{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;
-      font-size:15px;cursor:pointer;transition:all 0.2s;background:rgba(255,255,255,0.05);
-      border:1px solid rgba(255,255,255,0.08)}
-    #msgs{flex:1;overflow-y:auto;padding:18px 16px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
-    #msgs::-webkit-scrollbar{width:4px}
-    #msgs::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
-    .row{display:flex;gap:10px;align-items:flex-end;animation:up 0.3s cubic-bezier(0.34,1.56,0.64,1) both}
-    .row.user{flex-direction:row-reverse}
-    .av{width:34px;height:34px;border-radius:12px;display:flex;align-items:center;
-      justify-content:center;font-size:17px;flex-shrink:0;margin-bottom:18px}
-    .bub{max-width:76%;border-radius:5px 18px 18px 18px;padding:12px 15px;font-size:15px;line-height:1.68}
-    .row.user .bub{border-radius:18px 5px 18px 18px;color:#0d0d1a;font-weight:600}
-    .row.bot .bub{background:var(--card);border:1px solid var(--border);color:var(--text)}
-    .bub p{margin:2px 0}.bub strong{font-weight:800}.bub em{font-style:italic;opacity:.85}
-    .ts{font-size:10px;color:var(--dim);margin-top:5px;display:block}
-    .row.user .ts{text-align:right}
-    .typing{display:flex;gap:10px;align-items:flex-end;animation:up 0.22s both}
-    .typing-bub{background:var(--card);border:1px solid var(--border);
-      border-radius:5px 18px 18px 18px;padding:14px 18px;display:flex;gap:5px;align-items:center}
-    .d{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:bounce 1s infinite}
-    .d:nth-child(2){animation-delay:.18s}.d:nth-child(3){animation-delay:.36s}
-    #pbar{padding:0 16px 8px;display:none;justify-content:center;flex-shrink:0}
-    #pbar.show{display:flex}
-    #pbtn{background:rgba(78,205,196,0.1);border:1px solid rgba(78,205,196,0.4);color:#4ECDC4;
-      border-radius:20px;padding:8px 20px;font-size:13px;font-family:'Nunito',sans-serif;
-      font-weight:700;cursor:pointer;transition:all 0.2s}
-    #pbtn:hover{background:rgba(78,205,196,0.22);transform:translateY(-1px)}
-    #quick{padding:8px 16px 0;flex-shrink:0}
-    .ql{font-size:10.5px;color:var(--dim);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px}
-    #qrow{display:flex;gap:7px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
-    #qrow::-webkit-scrollbar{display:none}
-    .qp{white-space:nowrap;padding:7px 13px;background:rgba(255,255,255,0.06);
-      border:1px solid rgba(255,255,255,0.1);border-radius:16px;color:var(--dim);
-      font-size:13px;font-family:'Nunito',sans-serif;font-weight:600;cursor:pointer;transition:all 0.2s}
-    .qp:hover{background:rgba(255,255,255,0.13);color:var(--text);transform:translateY(-2px)}
-    #inp-area{padding:10px 14px 16px;background:rgba(0,0,0,0.35);
-      backdrop-filter:blur(22px);border-top:1px solid var(--border);flex-shrink:0}
-    .inp-row{display:flex;gap:9px;align-items:flex-end;background:rgba(255,255,255,0.065);
-      border:1px solid var(--border);border-radius:17px;padding:8px 9px 8px 15px;transition:border-color 0.25s}
-    .inp-row.active{border-color:rgba(255,230,109,0.45)}
-    #txt{flex:1;background:transparent;border:none;outline:none;color:var(--text);
-      font-family:'Nunito',sans-serif;font-size:15px;line-height:1.5;resize:none;max-height:100px;padding:3px 0}
-    #txt::placeholder{color:var(--dim)}
-    #sbtn{width:40px;height:40px;border-radius:12px;border:none;font-size:18px;cursor:pointer;
-      transition:all 0.2s;flex-shrink:0;display:flex;align-items:center;justify-content:center;
-      background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.25)}
-    #sbtn.on{background:var(--accent);color:#0d0d1a;box-shadow:0 4px 16px rgba(255,230,109,0.4)}
-    #sbtn.on:hover{transform:scale(1.12)}
-    .footer-note{text-align:center;margin-top:8px;font-size:11px;color:rgba(255,255,255,0.18)}
-    .orb{position:fixed;border-radius:50%;filter:blur(75px);pointer-events:none}
-    .orb1{width:340px;height:340px;top:-80px;right:-60px;background:rgba(195,166,255,0.07);animation:orb 9s infinite}
-    .orb2{width:270px;height:270px;bottom:20px;left:-80px;background:rgba(78,205,196,0.06);animation:orb 11s 2s infinite}
-    @keyframes up{from{opacity:0;transform:translateY(12px) scale(0.96)}to{opacity:1;transform:none}}
-    @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-7px)}}
-    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.25}}
-    @keyframes orb{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
-    @media(min-width:600px){header{padding:16px 26px}#msgs{padding:20px 24px}
-      #inp-area{padding:14px 24px 18px}#quick{padding:8px 24px 0}#pbar{padding:0 24px 8px}}
-    @media(min-width:900px){
-      body{display:flex;align-items:center;justify-content:center;
-        background:linear-gradient(135deg,#0d0d1a 0%,#16213e 55%,#0f3460 100%)}
-      #app{height:88vh;max-height:850px;border-radius:26px;border:1px solid rgba(255,255,255,0.08);
-        overflow:hidden;box-shadow:0 28px 70px rgba(0,0,0,0.55)}}
+    html,body{min-height:100%;background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif}
+    body{display:flex;flex-direction:column;align-items:center;justify-content:center;
+      min-height:100vh;padding:20px;
+      background:linear-gradient(135deg,#0d0d1a 0%,#16213e 55%,#0f3460 100%)}
+
+    .orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none}
+    .orb1{width:350px;height:350px;top:-80px;right:-60px;background:rgba(195,166,255,0.08)}
+    .orb2{width:280px;height:280px;bottom:0;left:-80px;background:rgba(78,205,196,0.07)}
+
+    .brand{text-align:center;margin-bottom:32px}
+    .brand-icon{width:64px;height:64px;background:linear-gradient(135deg,#FFE66D,#FF6B6B);
+      border-radius:20px;display:flex;align-items:center;justify-content:center;
+      font-size:30px;margin:0 auto 12px;box-shadow:0 8px 30px rgba(255,107,107,0.35)}
+    .brand-name{font-family:'Fredoka One',cursive;font-size:32px;color:var(--accent)}
+    .brand-sub{font-size:14px;color:var(--dim);margin-top:4px}
+
+    .card{width:100%;max-width:420px;background:rgba(255,255,255,0.05);
+      border:1px solid var(--border);border-radius:24px;padding:32px;
+      backdrop-filter:blur(20px);box-shadow:0 20px 60px rgba(0,0,0,0.4)}
+
+    .tabs{display:flex;background:rgba(0,0,0,0.3);border-radius:14px;padding:4px;margin-bottom:28px}
+    .tab{flex:1;padding:10px;text-align:center;border-radius:10px;cursor:pointer;
+      font-weight:700;font-size:15px;color:var(--dim);transition:all 0.2s;border:none;background:none}
+    .tab.active{background:rgba(255,230,109,0.15);color:var(--accent);
+      border:1px solid rgba(255,230,109,0.3)}
+
+    .form{display:flex;flex-direction:column;gap:16px}
+    .field label{display:block;font-size:12px;font-weight:700;color:var(--dim);
+      text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
+    .field input{width:100%;background:rgba(255,255,255,0.07);border:1px solid var(--border);
+      border-radius:12px;padding:13px 16px;color:var(--text);font-family:'Nunito',sans-serif;
+      font-size:15px;outline:none;transition:border-color 0.2s}
+    .field input:focus{border-color:rgba(255,230,109,0.5)}
+    .field input::placeholder{color:var(--dim)}
+
+    .submit-btn{width:100%;padding:14px;background:var(--accent);color:#0d0d1a;
+      border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:16px;
+      font-weight:800;cursor:pointer;transition:all 0.2s;margin-top:4px}
+    .submit-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(255,230,109,0.4)}
+    .submit-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+
+    .error-msg{background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.3);
+      color:var(--red);border-radius:10px;padding:10px 14px;font-size:13px;
+      display:none;text-align:center}
+    .error-msg.show{display:block}
+
+    .success-msg{background:rgba(78,205,196,0.12);border:1px solid rgba(78,205,196,0.3);
+      color:var(--green);border-radius:10px;padding:10px 14px;font-size:13px;
+      display:none;text-align:center}
+    .success-msg.show{display:block}
+
+    .divider{text-align:center;color:var(--dim);font-size:12px;margin:4px 0}
+    .footer-note{text-align:center;margin-top:20px;font-size:12px;color:var(--dim)}
+
+    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+    .shake{animation:shake 0.3s ease}
   </style>
 </head>
 <body>
 <div class="orb orb1"></div><div class="orb orb2"></div>
-<div id="app">
-  <header>
-    <div class="logo">
-      <div class="logo-icon">🤖</div>
-      <div>
-        <div class="logo-name">StudyBuddy</div>
-        <div class="logo-sub"><span class="live"></span>AI Homework Helper · Always Online</div>
+
+<div class="brand">
+  <div class="brand-icon">🤖</div>
+  <div class="brand-name">StudyBuddy</div>
+  <div class="brand-sub">Your AI Homework Helper</div>
+</div>
+
+<div class="card">
+  <div class="tabs">
+    <button class="tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
+    <button class="tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+  </div>
+
+  <!-- SIGN IN -->
+  <div id="form-signin">
+    <div class="form">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="si-email" placeholder="your@email.com" autocomplete="email"/>
       </div>
-    </div>
-    <div class="subject-icons" id="icons"></div>
-  </header>
-
-  <div id="msgs"></div>
-
-  <div id="pbar"><button id="pbtn" onclick="practice()">📝 Give me practice questions</button></div>
-
-  <div id="quick">
-    <div class="ql">✨ Try asking</div>
-    <div id="qrow">
-      <button class="qp" onclick="go('What is photosynthesis?')">What is photosynthesis?</button>
-      <button class="qp" onclick="go('Explain the Pythagorean theorem')">Pythagorean theorem</button>
-      <button class="qp" onclick="go('How does gravity work?')">How does gravity work?</button>
-      <button class="qp" onclick="go('What caused World War II?')">What caused WW2?</button>
-      <button class="qp" onclick="go('Explain fractions simply')">Fractions explained</button>
-      <button class="qp" onclick="go('What is a simile vs metaphor?')">Simile vs Metaphor</button>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="si-password" placeholder="Enter your password" autocomplete="current-password"/>
+      </div>
+      <div class="error-msg" id="si-error"></div>
+      <button class="submit-btn" id="si-btn" onclick="signIn()">Sign In →</button>
     </div>
   </div>
 
-  <div id="inp-area">
-    <div class="inp-row" id="inp-row">
-      <textarea id="txt" rows="1" placeholder="Ask me anything… e.g. What is gravity?"
-        oninput="onType(this)" onkeydown="onKey(event)"></textarea>
-      <button id="sbtn" onclick="go()">🚀</button>
+  <!-- SIGN UP -->
+  <div id="form-signup" style="display:none">
+    <div class="form">
+      <div class="field">
+        <label>Username</label>
+        <input type="text" id="su-username" placeholder="Choose a username" autocomplete="username"/>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="su-email" placeholder="your@email.com" autocomplete="email"/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="su-password" placeholder="At least 6 characters" autocomplete="new-password"/>
+      </div>
+      <div class="error-msg" id="su-error"></div>
+      <div class="success-msg" id="su-success"></div>
+      <button class="submit-btn" id="su-btn" onclick="signUp()">Create Account →</button>
     </div>
-    <div class="footer-note">📐 Math · 🔬 Science · 📚 English · 🏛️ History</div>
   </div>
+
+  <div class="footer-note">📐 Math · 🔬 Science · 📚 English · 🏛️ History</div>
 </div>
 
 <script>
-const SUBJ={
-  general:{e:'🤖',c:'#C3A6FF',b:'rgba(195,166,255,0.18)'},
-  math:   {e:'📐',c:'#FF6B6B',b:'rgba(255,107,107,0.18)'},
-  science:{e:'🔬',c:'#4ECDC4',b:'rgba(78,205,196,0.18)'},
-  english:{e:'📚',c:'#FFE66D',b:'rgba(255,230,109,0.18)'},
-  history:{e:'🏛️',c:'#A8E6CF',b:'rgba(168,230,207,0.18)'},
-};
-let hist=[],busy=false,curSubj='general';
+  // Redirect if already logged in
+  if (localStorage.getItem('sb_token')) window.location.href = '/app';
 
-const iconsEl=document.getElementById('icons');
-Object.entries(SUBJ).forEach(([k,v])=>{
-  const d=document.createElement('div');
-  d.className='si';d.title=k;d.textContent=v.e;d.id='icon-'+k;
-  d.onclick=()=>setSubj(k);
-  iconsEl.appendChild(d);
-});
+  function switchTab(tab) {
+    document.getElementById('form-signin').style.display = tab === 'signin' ? 'block' : 'none';
+    document.getElementById('form-signup').style.display = tab === 'signup' ? 'block' : 'none';
+    document.getElementById('tab-signin').className = 'tab' + (tab === 'signin' ? ' active' : '');
+    document.getElementById('tab-signup').className = 'tab' + (tab === 'signup' ? ' active' : '');
+  }
 
-function setSubj(s){
-  curSubj=s;
-  Object.entries(SUBJ).forEach(([k,v])=>{
-    const el=document.getElementById('icon-'+k);if(!el)return;
-    el.style.background=k===s?v.b:'rgba(255,255,255,0.05)';
-    el.style.border=`1px solid ${k===s?v.c+'66':'rgba(255,255,255,0.08)'}`;
-    el.style.boxShadow=k===s?`0 2px 10px ${v.c}44`:'none';
+  function showError(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg; el.classList.add('show');
+    el.parentElement.classList.add('shake');
+    setTimeout(() => el.parentElement.classList.remove('shake'), 300);
+  }
+  function hideError(id) { document.getElementById(id).classList.remove('show'); }
+
+  async function signIn() {
+    hideError('si-error');
+    const email    = document.getElementById('si-email').value.trim();
+    const password = document.getElementById('si-password').value;
+    if (!email || !password) return showError('si-error', 'Please fill in all fields');
+
+    const btn = document.getElementById('si-btn');
+    btn.disabled = true; btn.textContent = 'Signing in…';
+
+    try {
+      const res  = await fetch('/api/signin', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) return showError('si-error', data.error);
+      localStorage.setItem('sb_token', data.token);
+      localStorage.setItem('sb_username', data.username);
+      window.location.href = '/app';
+    } catch {
+      showError('si-error', 'Connection error. Please try again.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Sign In →';
+    }
+  }
+
+  async function signUp() {
+    hideError('su-error');
+    document.getElementById('su-success').classList.remove('show');
+    const username = document.getElementById('su-username').value.trim();
+    const email    = document.getElementById('su-email').value.trim();
+    const password = document.getElementById('su-password').value;
+    if (!username || !email || !password) return showError('su-error', 'Please fill in all fields');
+
+    const btn = document.getElementById('su-btn');
+    btn.disabled = true; btn.textContent = 'Creating account…';
+
+    try {
+      const res  = await fetch('/api/signup', {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ username, email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) return showError('su-error', data.error);
+      localStorage.setItem('sb_token', data.token);
+      localStorage.setItem('sb_username', data.username);
+      window.location.href = '/app';
+    } catch {
+      showError('su-error', 'Connection error. Please try again.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Create Account →';
+    }
+  }
+
+  // Enter key support
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    if (document.getElementById('form-signup').style.display !== 'none') signUp();
+    else signIn();
   });
-}
-setSubj('general');
-
-function detectSubj(t){
-  const l=t.toLowerCase();
-  if(/\b(math|algebra|calculus|geometry|equation|fraction|triangle|percentage|multiply|divide|probability|number)\b/.test(l))return'math';
-  if(/\b(science|physics|chemistry|biology|photosynthesis|atom|cell|energy|force|gravity|molecule|dna|evolution)\b/.test(l))return'science';
-  if(/\b(english|grammar|essay|poem|verb|noun|adjective|metaphor|simile|vocabulary|punctuation|write)\b/.test(l))return'english';
-  if(/\b(history|war|president|century|ancient|civilization|revolution|empire|battle|colonial)\b/.test(l))return'history';
-  return'general';
-}
-
-const msgsEl=document.getElementById('msgs');
-
-function addMsg(role,text,s){
-  const info=SUBJ[s]||SUBJ.general,isBot=role==='assistant';
-  const row=document.createElement('div');row.className=`row ${isBot?'bot':'user'}`;
-  const time=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  if(isBot){
-    const av=document.createElement('div');av.className='av';
-    av.style.cssText=`background:${info.b};box-shadow:0 3px 14px ${info.c}44`;
-    av.textContent=info.e;row.appendChild(av);
-  }
-  const wrap=document.createElement('div');
-  const bub=document.createElement('div');bub.className='bub';
-  if(!isBot)bub.style.cssText=`background:linear-gradient(135deg,${info.c}ee,${info.c}aa)`;
-  bub.innerHTML=text.split('\n').map(l=>`<p>${l
-    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\*(.+?)\*/g,'<em>$1</em>')||'<br>'}</p>`).join('');
-  const ts=document.createElement('span');ts.className='ts';ts.textContent=time;
-  wrap.appendChild(bub);wrap.appendChild(ts);row.appendChild(wrap);
-  msgsEl.appendChild(row);msgsEl.scrollTop=msgsEl.scrollHeight;
-}
-
-function showTyping(){
-  const info=SUBJ[curSubj];
-  const row=document.createElement('div');row.className='typing';row.id='typing';
-  row.innerHTML=`<div class="av" style="background:${info.b};box-shadow:0 3px 14px ${info.c}44;margin-bottom:18px">${info.e}</div>
-    <div class="typing-bub"><div class="d"></div><div class="d"></div><div class="d"></div></div>`;
-  msgsEl.appendChild(row);msgsEl.scrollTop=msgsEl.scrollHeight;
-}
-function hideTyping(){const e=document.getElementById('typing');if(e)e.remove();}
-
-async function go(text){
-  text=(typeof text==='string'?text:document.getElementById('txt').value).trim();
-  if(!text||busy)return;
-  busy=true;
-  document.getElementById('txt').value='';
-  document.getElementById('sbtn').className='';
-  document.getElementById('inp-row').classList.remove('active');
-  document.getElementById('quick').style.display='none';
-  document.getElementById('pbar').classList.remove('show');
-  resize(document.getElementById('txt'));
-  const s=detectSubj(text);curSubj=s;setSubj(s);
-  hist.push({role:'user',content:text});
-  addMsg('user',text,s);
-  showTyping();
-  try{
-    const res=await fetch('/chat',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({messages:hist}),
-    });
-    if(!res.ok)throw new Error(`Server error ${res.status}`);
-    const data=await res.json();
-    const reply=(data.content||[]).map(b=>b.text||'').join('')||"Sorry, couldn't get a response. Try again!";
-    hist.push({role:'assistant',content:reply});
-    hideTyping();
-    addMsg('assistant',reply,s);
-    document.getElementById('pbar').classList.add('show');
-  }catch(err){
-    hideTyping();
-    addMsg('assistant',`⚠️ ${err.message}. Please try again.`,'general');
-  }finally{
-    busy=false;
-    document.getElementById('txt').focus();
-  }
-}
-
-function practice(){go('Give me 3 practice questions on this topic with answers at the end.');}
-function onType(el){
-  resize(el);
-  document.getElementById('sbtn').className=el.value.trim()?'on':'';
-  document.getElementById('inp-row').className=el.value.trim()?'inp-row active':'inp-row';
-}
-function resize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
-function onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();go();}}
-
-window.addEventListener('DOMContentLoaded',()=>{
-  const w="Hey there! 👋 I'm **StudyBuddy**, your AI homework helper!\n\nAsk me anything — I'll explain it simply, help you understand tricky topics, or give you **practice questions**.\n\nWhat are you studying today? 📖";
-  hist.push({role:'assistant',content:w});
-  addMsg('assistant',w,'general');
-});
 </script>
 </body>
 </html>
