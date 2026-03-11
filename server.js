@@ -164,7 +164,7 @@ app.delete("/api/timetable/:id", authMiddleware, async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-});
+}); 
 
 // ── SERVE PAGES ──
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "public", "index.html")));
