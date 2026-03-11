@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#0d0d1a"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="StudyBuddy"/>
+  <title>StudyBuddy 🤖 – AI Homework Helper</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0d0d1a;--card:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.09);
+      --text:rgba(255,255,255,0.93);--dim:rgba(255,255,255,0.4);
+      --accent:#FFE66D;--math:#FF6B6B;--science:#4ECDC4;
+      --english:#FFE66D;--history:#A8E6CF;--general:#C3A6FF;
+    }
+    html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;
+      -webkit-tap-highlight-color:transparent;overflow:hidden}
+    #app{display:flex;flex-direction:column;height:100dvh;max-width:820px;margin:0 auto}
+
+    /* ── HEADER ── */
+    header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;
+      background:rgba(10,10,22,0.95);backdrop-filter:blur(22px);
+      border-bottom:1px solid var(--border);flex-shrink:0;z-index:20}
+    .logo{display:flex;align-items:center;gap:10px}
+    .logo-icon{width:40px;height:40px;background:linear-gradient(135deg,#FFE66D,#FF6B6B);
+      border-radius:13px;display:flex;align-items:center;justify-content:center;
+      font-size:20px;box-shadow:0 4px 16px rgba(255,107,107,0.3);flex-shrink:0}
+    .logo-name{font-family:'Fredoka One',cursive;font-size:21px;color:var(--accent);line-height:1}
+    .logo-sub{font-size:10.5px;color:var(--dim);font-weight:600;margin-top:1px}
+    .live{display:inline-block;width:6px;height:6px;background:#4ECDC4;border-radius:50%;
+      margin-right:4px;box-shadow:0 0 6px #4ECDC4;animation:blink 2s infinite}
+    .user-info{display:flex;align-items:center;gap:10px}
+    .username-badge{background:rgba(255,230,109,0.12);border:1px solid rgba(255,230,109,0.25);
+      color:var(--accent);border-radius:10px;padding:5px 11px;font-size:13px;font-weight:700}
+    .logout-btn{background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);
+      color:#FF6B6B;border-radius:10px;padding:5px 11px;font-size:13px;font-weight:700;
+      cursor:pointer;transition:all 0.2s}
+    .logout-btn:hover{background:rgba(255,107,107,0.2)}
+
+    /* ── NAV TABS ── */
+    .nav-tabs{display:flex;background:rgba(0,0,0,0.3);border-bottom:1px solid var(--border);flex-shrink:0}
+    .nav-tab{flex:1;padding:12px;text-align:center;font-size:14px;font-weight:700;
+      color:var(--dim);cursor:pointer;transition:all 0.2s;border:none;background:none;
+      border-bottom:2px solid transparent;display:flex;align-items:center;justify-content:center;gap:6px}
+    .nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);
+      background:rgba(255,230,109,0.06)}
+
+    /* ── PAGES ── */
+    .page{display:none;flex:1;flex-direction:column;overflow:hidden}
+    .page.active{display:flex}
+
+    /* ── CHAT PAGE ── */
+    .subject-bar{display:flex;gap:7px;padding:9px 16px;background:rgba(0,0,0,0.2);
+      border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+    .subject-bar::-webkit-scrollbar{display:none}
+    .pill{padding:5px 12px;border-radius:18px;font-size:13px;font-weight:700;white-space:nowrap;
+      cursor:pointer;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);
+      color:var(--dim);transition:all 0.2s}
+    .pill.active[data-s="math"]   {background:rgba(255,107,107,0.2);border-color:rgba(255,107,107,0.5);color:var(--math)}
+    .pill.active[data-s="science"]{background:rgba(78,205,196,0.2);border-color:rgba(78,205,196,0.5);color:var(--science)}
+    .pill.active[data-s="english"]{background:rgba(255,230,109,0.2);border-color:rgba(255,230,109,0.5);color:var(--english)}
+    .pill.active[data-s="history"]{background:rgba(168,230,207,0.2);border-color:rgba(168,230,207,0.5);color:var(--history)}
+    .pill.active[data-s="general"]{background:rgba(195,166,255,0.2);border-color:rgba(195,166,255,0.5);color:var(--general)}
+
+    #msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:13px;scroll-behavior:smooth}
+    #msgs::-webkit-scrollbar{width:4px}
+    #msgs::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+    .row{display:flex;gap:9px;align-items:flex-end;animation:up 0.28s cubic-bezier(0.34,1.56,0.64,1) both}
+    .row.user{flex-direction:row-reverse}
+    .av{width:32px;height:32px;border-radius:11px;display:flex;align-items:center;
+      justify-content:center;font-size:16px;flex-shrink:0;margin-bottom:18px}
+    .bub{max-width:76%;border-radius:5px 17px 17px 17px;padding:11px 14px;font-size:15px;line-height:1.65}
+    .row.user .bub{border-radius:17px 5px 17px 17px;color:#0d0d1a;font-weight:600}
+    .row.bot .bub{background:var(--card);border:1px solid var(--border);color:var(--text)}
+    .bub p{margin:2px 0}.bub strong{font-weight:800}.bub em{font-style:italic;opacity:.85}
+    .ts{font-size:10px;color:var(--dim);margin-top:4px;display:block}
+    .row.user .ts{text-align:right}
+    .typing-row{display:flex;gap:9px;align-items:flex-end;animation:up 0.2s both}
+    .typing-bub{background:var(--card);border:1px solid var(--border);
+      border-radius:5px 17px 17px 17px;padding:13px 16px;display:flex;gap:5px;align-items:center}
+    .d{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:bounce 1s infinite}
+    .d:nth-child(2){animation-delay:.18s}.d:nth-child(3){animation-delay:.36s}
+
+    #pbar{padding:0 14px 6px;display:none;justify-content:center;flex-shrink:0}
+    #pbar.show{display:flex}
+    #pbtn{background:rgba(78,205,196,0.1);border:1px solid rgba(78,205,196,0.35);color:#4ECDC4;
+      border-radius:18px;padding:7px 18px;font-size:13px;font-family:'Nunito',sans-serif;
+      font-weight:700;cursor:pointer;transition:all 0.2s}
+    #pbtn:hover{background:rgba(78,205,196,0.2);transform:translateY(-1px)}
+
+    #quick{padding:7px 14px 0;flex-shrink:0}
+    .ql{font-size:10px;color:var(--dim);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+    #qrow{display:flex;gap:6px;overflow-x:auto;padding-bottom:5px;scrollbar-width:none}
+    #qrow::-webkit-scrollbar{display:none}
+    .qp{white-space:nowrap;padding:6px 12px;background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.1);border-radius:14px;color:var(--dim);
+      font-size:13px;font-family:'Nunito',sans-serif;font-weight:600;cursor:pointer;transition:all 0.2s}
+    .qp:hover{background:rgba(255,255,255,0.12);color:var(--text);transform:translateY(-1px)}
+
+    #inp-area{padding:10px 14px 14px;background:rgba(0,0,0,0.35);
+      backdrop-filter:blur(20px);border-top:1px solid var(--border);flex-shrink:0}
+    .inp-row{display:flex;gap:8px;align-items:flex-end;background:rgba(255,255,255,0.065);
+      border:1px solid var(--border);border-radius:16px;padding:7px 8px 7px 14px;transition:border-color 0.25s}
+    .inp-row.focus{border-color:rgba(255,230,109,0.45)}
+    #txt{flex:1;background:transparent;border:none;outline:none;color:var(--text);
+      font-family:'Nunito',sans-serif;font-size:15px;line-height:1.5;resize:none;max-height:100px;padding:3px 0}
+    #txt::placeholder{color:var(--dim)}
+    #sbtn{width:38px;height:38px;border-radius:11px;border:none;font-size:17px;cursor:pointer;
+      transition:all 0.2s;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+      background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.25)}
+    #sbtn.on{background:var(--accent);color:#0d0d1a;box-shadow:0 4px 14px rgba(255,230,109,0.4)}
+    #sbtn.on:hover{transform:scale(1.1)}
+
+    /* ── TIMETABLE PAGE ── */
+    #timetable-page{overflow-y:auto;padding:18px 16px;gap:0}
+    #timetable-page::-webkit-scrollbar{width:4px}
+    #timetable-page::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+
+    .tt-section{margin-bottom:24px}
+    .tt-title{font-family:'Fredoka One',cursive;font-size:18px;color:var(--accent);margin-bottom:14px;
+      display:flex;align-items:center;gap:8px}
+
+    .add-form{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:20px}
+    .form-row{display:flex;flex-direction:column;gap:12px}
+    .form-group label{display:block;font-size:11px;font-weight:700;color:var(--dim);
+      text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px}
+    .form-group input,.form-group select{width:100%;background:rgba(255,255,255,0.07);
+      border:1px solid var(--border);border-radius:11px;padding:11px 14px;
+      color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s}
+    .form-group input:focus,.form-group select:focus{border-color:rgba(255,230,109,0.45)}
+    .form-group select option{background:#1a1a2e;color:var(--text)}
+
+    .days-grid{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+    .day-btn{padding:6px 11px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);
+      background:rgba(255,255,255,0.05);color:var(--dim);font-size:13px;font-weight:700;
+      cursor:pointer;transition:all 0.2s;font-family:'Nunito',sans-serif}
+    .day-btn.selected{background:rgba(255,230,109,0.18);border-color:rgba(255,230,109,0.45);color:var(--accent)}
+
+    .type-toggle{display:flex;background:rgba(0,0,0,0.3);border-radius:12px;padding:3px}
+    .type-btn{flex:1;padding:8px;text-align:center;border-radius:9px;cursor:pointer;
+      font-size:13px;font-weight:700;color:var(--dim);transition:all 0.2s;border:none;background:none}
+    .type-btn.active{background:rgba(255,230,109,0.15);color:var(--accent);border:1px solid rgba(255,230,109,0.3)}
+
+    .add-btn{width:100%;padding:13px;background:var(--accent);color:#0d0d1a;border:none;
+      border-radius:13px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;
+      cursor:pointer;transition:all 0.2s;margin-top:4px}
+    .add-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(255,230,109,0.35)}
+    .add-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none}
+
+    .tt-error{background:rgba(255,107,107,0.12);border:1px solid rgba(255,107,107,0.3);
+      color:#FF6B6B;border-radius:10px;padding:9px 13px;font-size:13px;display:none;margin-top:8px}
+    .tt-error.show{display:block}
+
+    .schedule-list{display:flex;flex-direction:column;gap:10px}
+    .schedule-item{background:var(--card);border:1px solid var(--border);border-radius:15px;
+      padding:14px 16px;display:flex;align-items:center;justify-content:space-between;
+      animation:up 0.25s ease both}
+    .schedule-item:hover{border-color:rgba(255,255,255,0.15)}
+    .schedule-info{display:flex;flex-direction:column;gap:3px}
+    .schedule-subject{font-weight:800;font-size:15px;color:var(--text)}
+    .schedule-meta{font-size:12px;color:var(--dim)}
+    .schedule-time{font-family:'Fredoka One',cursive;font-size:18px;color:var(--accent);text-align:right}
+    .schedule-type{font-size:11px;color:var(--dim);text-align:right;margin-top:2px}
+    .delete-btn{width:30px;height:30px;border-radius:8px;border:none;background:rgba(255,107,107,0.1);
+      color:#FF6B6B;font-size:15px;cursor:pointer;transition:all 0.2s;display:flex;
+      align-items:center;justify-content:center;margin-left:10px;flex-shrink:0}
+    .delete-btn:hover{background:rgba(255,107,107,0.22)}
+
+    .empty-state{text-align:center;padding:30px;color:var(--dim)}
+    .empty-state div{font-size:36px;margin-bottom:10px}
+
+    /* ── ALARM TOAST ── */
+    #alarm-toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);
+      background:linear-gradient(135deg,#FFE66D,#FF6B6B);color:#0d0d1a;
+      border-radius:16px;padding:14px 22px;font-weight:800;font-size:15px;
+      box-shadow:0 8px 30px rgba(255,230,109,0.5);z-index:999;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      text-align:center;max-width:320px;width:90%}
+    #alarm-toast.show{transform:translateX(-50%) translateY(0)}
+
+    /* ── BG ORBS ── */
+    .orb{position:fixed;border-radius:50%;filter:blur(75px);pointer-events:none;z-index:0}
+    .orb1{width:320px;height:320px;top:-70px;right:-50px;background:rgba(195,166,255,0.07);animation:orb 9s infinite}
+    .orb2{width:260px;height:260px;bottom:0;left:-70px;background:rgba(78,205,196,0.06);animation:orb 11s 2s infinite}
+
+    @keyframes up{from{opacity:0;transform:translateY(10px) scale(0.97)}to{opacity:1;transform:none}}
+    @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.25}}
+    @keyframes orb{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+
+    @media(min-width:600px){
+      header{padding:14px 24px}
+      #msgs,#timetable-page{padding:20px 22px}
+      #inp-area{padding:12px 22px 16px}
+      #quick{padding:8px 22px 0}
+    }
+    @media(min-width:900px){
+      body{display:flex;align-items:center;justify-content:center;
+        background:linear-gradient(135deg,#0d0d1a 0%,#16213e 55%,#0f3460 100%)}
+      #app{height:90vh;max-height:860px;border-radius:26px;border:1px solid rgba(255,255,255,0.08);
+        overflow:hidden;box-shadow:0 28px 70px rgba(0,0,0,0.55)}
+    }
+  </style>
+</head>
+<body>
+<div class="orb orb1"></div><div class="orb orb2"></div>
+<div id="alarm-toast" id="alarm-toast">⏰ <span id="alarm-text"></span></div>
+
+<div id="app">
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🤖</div>
+      <div>
+        <div class="logo-name">StudyBuddy</div>
+        <div class="logo-sub"><span class="live"></span>AI Homework Helper</div>
+      </div>
+    </div>
+    <div class="user-info">
+      <div class="username-badge">👤 <span id="username-display"></span></div>
+      <button class="logout-btn" onclick="logout()">Sign Out</button>
+    </div>
+  </header>
+
+  <!-- NAV TABS -->
+  <div class="nav-tabs">
+    <button class="nav-tab active" id="nav-chat" onclick="switchPage('chat')">💬 Chat</button>
+    <button class="nav-tab" id="nav-timetable" onclick="switchPage('timetable')">📅 Timetable</button>
+  </div>
+
+  <!-- ── CHAT PAGE ── -->
+  <div class="page active" id="chat-page">
+    <div class="subject-bar">
+      <div class="pill active" data-s="general" onclick="setSubj('general')">🤖 General</div>
+      <div class="pill" data-s="math"    onclick="setSubj('math')">📐 Math</div>
+      <div class="pill" data-s="science" onclick="setSubj('science')">🔬 Science</div>
+      <div class="pill" data-s="english" onclick="setSubj('english')">📚 English</div>
+      <div class="pill" data-s="history" onclick="setSubj('history')">🏛️ History</div>
+    </div>
+
+    <div id="msgs"></div>
+
+    <div id="pbar"><button id="pbtn" onclick="practice()">📝 Give me practice questions</button></div>
+
+    <div id="quick">
+      <div class="ql">✨ Try asking</div>
+      <div id="qrow">
+        <button class="qp" onclick="go('What is photosynthesis?')">What is photosynthesis?</button>
+        <button class="qp" onclick="go('Explain the Pythagorean theorem')">Pythagorean theorem</button>
+        <button class="qp" onclick="go('How does gravity work?')">How does gravity work?</button>
+        <button class="qp" onclick="go('What caused World War II?')">What caused WW2?</button>
+        <button class="qp" onclick="go('Explain fractions simply')">Fractions explained</button>
+        <button class="qp" onclick="go('What is a simile vs metaphor?')">Simile vs Metaphor</button>
+      </div>
+    </div>
+
+    <div id="inp-area">
+      <div class="inp-row" id="inp-row">
+        <textarea id="txt" rows="1" placeholder="Ask me anything… e.g. What is gravity?"
+          oninput="onType(this)" onkeydown="onKey(event)"></textarea>
+        <button id="sbtn" onclick="go()">🚀</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TIMETABLE PAGE ── -->
+  <div class="page" id="timetable-page">
+
+    <div class="tt-section">
+      <div class="tt-title">➕ Add Study Session</div>
+      <div class="add-form">
+        <div class="form-row">
+
+          <div class="form-group">
+            <label>Subject / Topic</label>
+            <input type="text" id="tt-subject" placeholder="e.g. Math, Biology, History…"/>
+          </div>
+
+          <div class="form-group">
+            <label>Schedule Type</label>
+            <div class="type-toggle">
+              <button class="type-btn active" id="type-weekly" onclick="setType('weekly')">🔁 Weekly Repeat</button>
+              <button class="type-btn" id="type-specific" onclick="setType('specific')">📆 Specific Date</button>
+            </div>
+          </div>
+
+          <!-- Weekly days -->
+          <div class="form-group" id="days-group">
+            <label>Days of the Week</label>
+            <div class="days-grid">
+              <button class="day-btn" data-day="Monday"    onclick="toggleDay(this)">Mon</button>
+              <button class="day-btn" data-day="Tuesday"   onclick="toggleDay(this)">Tue</button>
+              <button class="day-btn" data-day="Wednesday" onclick="toggleDay(this)">Wed</button>
+              <button class="day-btn" data-day="Thursday"  onclick="toggleDay(this)">Thu</button>
+              <button class="day-btn" data-day="Friday"    onclick="toggleDay(this)">Fri</button>
+              <button class="day-btn" data-day="Saturday"  onclick="toggleDay(this)">Sat</button>
+              <button class="day-btn" data-day="Sunday"    onclick="toggleDay(this)">Sun</button>
+            </div>
+          </div>
+
+          <!-- Specific date -->
+          <div class="form-group" id="date-group" style="display:none">
+            <label>Date</label>
+            <input type="date" id="tt-date"/>
+          </div>
+
+          <div class="form-group">
+            <label>Time</label>
+            <input type="time" id="tt-time"/>
+          </div>
+
+          <div class="tt-error" id="tt-error"></div>
+          <button class="add-btn" id="add-btn" onclick="addSchedule()">+ Add to Timetable</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tt-section">
+      <div class="tt-title">📋 My Study Timetable</div>
+      <div class="schedule-list" id="schedule-list">
+        <div class="empty-state"><div>📭</div>No study sessions yet.<br/>Add one above!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── AUTH CHECK ──
+  const token    = localStorage.getItem('sb_token');
+  const username = localStorage.getItem('sb_username');
+  if (!token) window.location.href = '/';
+  document.getElementById('username-display').textContent = username || 'Student';
+
+  function logout() {
+    localStorage.removeItem('sb_token');
+    localStorage.removeItem('sb_username');
+    window.location.href = '/';
+  }
+
+  function authHeaders() {
+    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+  }
+
+  // ── PAGE SWITCHING ──
+  function switchPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(page + '-page').classList.add('active');
+    document.getElementById('nav-' + page).classList.add('active');
+    if (page === 'timetable') loadSchedules();
+  }
+
+  // ── CHAT ──
+  const SUBJ = {
+    general:{e:'🤖',c:'#C3A6FF',b:'rgba(195,166,255,0.18)'},
+    math:   {e:'📐',c:'#FF6B6B',b:'rgba(255,107,107,0.18)'},
+    science:{e:'🔬',c:'#4ECDC4',b:'rgba(78,205,196,0.18)'},
+    english:{e:'📚',c:'#FFE66D',b:'rgba(255,230,109,0.18)'},
+    history:{e:'🏛️',c:'#A8E6CF',b:'rgba(168,230,207,0.18)'},
+  };
+  let hist=[], busy=false, curSubj='general';
+
+  function detectSubj(t){
+    const l=t.toLowerCase();
+    if(/\b(math|algebra|calculus|geometry|equation|fraction|triangle|percentage|multiply|divide|probability)\b/.test(l))return'math';
+    if(/\b(science|physics|chemistry|biology|photosynthesis|atom|cell|energy|force|gravity|molecule|dna)\b/.test(l))return'science';
+    if(/\b(english|grammar|essay|poem|verb|noun|adjective|metaphor|simile|vocabulary|punctuation)\b/.test(l))return'english';
+    if(/\b(history|war|president|century|ancient|civilization|revolution|empire|battle|colonial)\b/.test(l))return'history';
+    return'general';
+  }
+
+  function setSubj(s){
+    curSubj=s;
+    document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.s===s));
+  }
+
+  const msgsEl=document.getElementById('msgs');
+
+  function addMsg(role,text,s){
+    const info=SUBJ[s]||SUBJ.general,isBot=role==='assistant';
+    const row=document.createElement('div');row.className=`row ${isBot?'bot':'user'}`;
+    const time=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    if(isBot){
+      const av=document.createElement('div');av.className='av';
+      av.style.cssText=`background:${info.b};box-shadow:0 3px 12px ${info.c}44`;
+      av.textContent=info.e;row.appendChild(av);
+    }
+    const wrap=document.createElement('div');
+    const bub=document.createElement('div');bub.className='bub';
+    if(!isBot)bub.style.cssText=`background:linear-gradient(135deg,${info.c}ee,${info.c}99)`;
+    bub.innerHTML=text.split('\n').map(l=>`<p>${l
+      .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g,'<em>$1</em>')||'<br>'}</p>`).join('');
+    const ts=document.createElement('span');ts.className='ts';ts.textContent=time;
+    wrap.appendChild(bub);wrap.appendChild(ts);row.appendChild(wrap);
+    msgsEl.appendChild(row);msgsEl.scrollTop=msgsEl.scrollHeight;
+  }
+
+  function showTyping(){
+    const info=SUBJ[curSubj];
+    const row=document.createElement('div');row.className='typing-row';row.id='typing';
+    row.innerHTML=`<div class="av" style="background:${info.b};box-shadow:0 3px 12px ${info.c}44;margin-bottom:18px">${info.e}</div>
+      <div class="typing-bub"><div class="d"></div><div class="d"></div><div class="d"></div></div>`;
+    msgsEl.appendChild(row);msgsEl.scrollTop=msgsEl.scrollHeight;
+  }
+  function hideTyping(){const e=document.getElementById('typing');if(e)e.remove();}
+
+  async function go(text){
+    text=(typeof text==='string'?text:document.getElementById('txt').value).trim();
+    if(!text||busy)return;
+    busy=true;
+    document.getElementById('txt').value='';
+    document.getElementById('sbtn').className='';
+    document.getElementById('inp-row').classList.remove('focus');
+    document.getElementById('quick').style.display='none';
+    document.getElementById('pbar').classList.remove('show');
+    resize(document.getElementById('txt'));
+    const s=detectSubj(text);curSubj=s;setSubj(s);
+    hist.push({role:'user',content:text});
+    addMsg('user',text,s);
+    showTyping();
+    try{
+      const res=await fetch('/api/chat',{
+        method:'POST',headers:authHeaders(),
+        body:JSON.stringify({messages:hist}),
+      });
+      if(res.status===401){logout();return;}
+      const data=await res.json();
+      const reply=(data.content||[]).map(b=>b.text||'').join('')||"Sorry, couldn't get a response. Try again!";
+      hist.push({role:'assistant',content:reply});
+      hideTyping();addMsg('assistant',reply,s);
+      document.getElementById('pbar').classList.add('show');
+    }catch(err){
+      hideTyping();addMsg('assistant',`⚠️ ${err.message}`,'general');
+    }finally{busy=false;document.getElementById('txt').focus();}
+  }
+
+  function practice(){go('Give me 3 practice questions on this topic with answers at the end.');}
+  function onType(el){
+    resize(el);
+    document.getElementById('sbtn').className=el.value.trim()?'on':'';
+    document.getElementById('inp-row').className=el.value.trim()?'inp-row focus':'inp-row';
+  }
+  function resize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+  function onKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();go();}}
+
+  // Boot message
+  const welcome=`Hey ${username}! 👋 I'm **StudyBuddy**, your AI homework helper!\n\nAsk me anything — I'll explain it simply, help you understand tricky topics, or give you **practice questions**.\n\nWhat are you studying today? 📖`;
+  hist.push({role:'assistant',content:welcome});
+  addMsg('assistant',welcome,'general');
+
+  // ── TIMETABLE ──
+  let scheduleType = 'weekly';
+  let selectedDays = [];
+  let schedules = [];
+
+  function setType(type){
+    scheduleType=type;
+    document.getElementById('type-weekly').className='type-btn'+(type==='weekly'?' active':'');
+    document.getElementById('type-specific').className='type-btn'+(type==='specific'?' active':'');
+    document.getElementById('days-group').style.display=type==='weekly'?'block':'none';
+    document.getElementById('date-group').style.display=type==='specific'?'block':'none';
+  }
+
+  function toggleDay(btn){
+    const day=btn.dataset.day;
+    if(selectedDays.includes(day)){
+      selectedDays=selectedDays.filter(d=>d!==day);
+      btn.classList.remove('selected');
+    }else{
+      selectedDays.push(day);
+      btn.classList.add('selected');
+    }
+  }
+
+  async function addSchedule(){
+    const subject=document.getElementById('tt-subject').value.trim();
+    const time=document.getElementById('tt-time').value;
+    const date=document.getElementById('tt-date').value;
+    const errEl=document.getElementById('tt-error');
+    errEl.classList.remove('show');
+
+    if(!subject){errEl.textContent='Please enter a subject';errEl.classList.add('show');return;}
+    if(!time){errEl.textContent='Please select a time';errEl.classList.add('show');return;}
+    if(scheduleType==='weekly'&&selectedDays.length===0){
+      errEl.textContent='Please select at least one day';errEl.classList.add('show');return;}
+    if(scheduleType==='specific'&&!date){
+      errEl.textContent='Please select a date';errEl.classList.add('show');return;}
+
+    const btn=document.getElementById('add-btn');
+    btn.disabled=true;btn.textContent='Adding…';
+
+    try{
+      const res=await fetch('/api/timetable',{
+        method:'POST',headers:authHeaders(),
+        body:JSON.stringify({subject,type:scheduleType,days:selectedDays,time,date}),
+      });
+      if(res.status===401){logout();return;}
+      const data=await res.json();
+      if(data.error){errEl.textContent=data.error;errEl.classList.add('show');return;}
+      // reset form
+      document.getElementById('tt-subject').value='';
+      document.getElementById('tt-time').value='';
+      document.getElementById('tt-date').value='';
+      selectedDays=[];
+      document.querySelectorAll('.day-btn').forEach(b=>b.classList.remove('selected'));
+      await loadSchedules();
+    }catch(err){
+      errEl.textContent='Error saving. Try again.';errEl.classList.add('show');
+    }finally{
+      btn.disabled=false;btn.textContent='+ Add to Timetable';
+    }
+  }
+
+  async function loadSchedules(){
+    try{
+      const res=await fetch('/api/timetable',{headers:authHeaders()});
+      if(res.status===401){logout();return;}
+      schedules=await res.json();
+      renderSchedules();
+    }catch(err){console.error('Load error:',err);}
+  }
+
+  function renderSchedules(){
+    const list=document.getElementById('schedule-list');
+    if(!schedules.length){
+      list.innerHTML='<div class="empty-state"><div>📭</div>No study sessions yet.<br/>Add one above!</div>';
+      return;
+    }
+    list.innerHTML='';
+    schedules.forEach(s=>{
+      const div=document.createElement('div');div.className='schedule-item';
+      const meta=s.type==='weekly'
+        ?s.days.join(', ')
+        :`📆 ${new Date(s.date+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}`;
+      div.innerHTML=`
+        <div class="schedule-info">
+          <div class="schedule-subject">${s.subject}</div>
+          <div class="schedule-meta">${meta}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div>
+            <div class="schedule-time">${formatTime(s.time)}</div>
+            <div class="schedule-type">${s.type==='weekly'?'🔁 Weekly':'📆 One-time'}</div>
+          </div>
+          <button class="delete-btn" onclick="deleteSchedule('${s._id}')">🗑️</button>
+        </div>`;
+      list.appendChild(div);
+    });
+  }
+
+  function formatTime(t){
+    const [h,m]=t.split(':');
+    const hr=parseInt(h);
+    return `${hr>12?hr-12:hr||12}:${m} ${hr>=12?'PM':'AM'}`;
+  }
+
+  async function deleteSchedule(id){
+    try{
+      await fetch(`/api/timetable/${id}`,{method:'DELETE',headers:authHeaders()});
+      schedules=schedules.filter(s=>s._id!==id);
+      renderSchedules();
+    }catch(err){console.error('Delete error:',err);}
+  }
+
+  // ── ALARM CHECKER ──
+  const alarmToast=document.getElementById('alarm-toast');
+  const alarmText=document.getElementById('alarm-text');
+  const firedAlarms=new Set();
+
+  function checkAlarms(){
+    const now=new Date();
+    const currentDay=now.toLocaleDateString('en-US',{weekday:'long'});
+    const currentDate=now.toISOString().split('T')[0];
+    const currentTime=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+    schedules.forEach(s=>{
+      const key=`${s._id}-${currentDate}-${currentTime}`;
+      if(firedAlarms.has(key))return;
+      const timeMatch=s.time===currentTime;
+      const dayMatch=s.type==='weekly'&&s.days.includes(currentDay);
+      const dateMatch=s.type==='specific'&&s.date===currentDate;
+      if(timeMatch&&(dayMatch||dateMatch)){
+        firedAlarms.add(key);
+        triggerAlarm(s.subject,s.time);
+      }
+    });
+  }
+
+  function triggerAlarm(subject,time){
+    alarmText.textContent=`Time to study ${subject}! (${formatTime(time)})`;
+    alarmToast.classList.add('show');
+    // Try browser notification
+    if(Notification.permission==='granted'){
+      new Notification('📚 StudyBuddy Reminder',{
+        body:`Time to study ${subject}!`,
+        icon:'/favicon.ico'
+      });
+    }
+    setTimeout(()=>alarmToast.classList.remove('show'),8000);
+  }
+
+  // Request notification permission
+  if('Notification' in window && Notification.permission==='default'){
+    Notification.requestPermission();
+  }
+
+  // Check alarms every 30 seconds
+  setInterval(checkAlarms,30000);
+  checkAlarms();
+</script>
+</body>
+</html>
